@@ -280,38 +280,38 @@ namespace Neuralator
         {
             for (int iter = 0; iter < GenerationMembers.Count() - 1; iter += 1)
             {
-                //if (GenerationMembers[0].TotalError == GenerationMembers[iter].TotalError)
-                //{
-                uint ProximalMembers = 0;
-
-                for (int iter2 = 0; iter2 < GenerationMembers.Count(); iter2 += 1)
+                if ((GenerationMembers[0].TotalError == GenerationMembers[iter].TotalError) || !CullWithMatchingError)
                 {
-                    if (iter == iter2)
-                    {
-                        continue;
-                    }
+                    uint ProximalMembers = 0;
 
-                    var DistanceTo = GenerationMembers[iter].DistanceTo(GenerationMembers[iter2]);
-
-                    if (DistanceTo <= 1)
+                    for (int iter2 = 0; iter2 < GenerationMembers.Count(); iter2 += 1)
                     {
-                        if ((ProximalMembers == 10) || DistanceTo <= 0.1 || (GenerationMembers[iter].TotalError == GenerationMembers[iter2].TotalError))
+                        if (iter == iter2)
                         {
-                            GenerationMembers[iter2] = Breed(GenerationMembers[GlobalRandom.Next(SurvivorsPerGeneration + 1, GenerationMembers.Count())],
-                                                             GenerationMembers[GlobalRandom.Next(SurvivorsPerGeneration + 1, GenerationMembers.Count())]);
+                            continue;
                         }
-                        else
+
+                        var DistanceTo = GenerationMembers[iter].DistanceTo(GenerationMembers[iter2]);
+
+                        if (DistanceTo <= 1)
                         {
-                            ProximalMembers += 1;
+                            if ((ProximalMembers == 10) || DistanceTo <= 0.1 || (GenerationMembers[iter].TotalError == GenerationMembers[iter2].TotalError))
+                            {
+                                GenerationMembers[iter2] = Breed(GenerationMembers[GlobalRandom.Next(SurvivorsPerGeneration + 1, GenerationMembers.Count())],
+                                                                 GenerationMembers[GlobalRandom.Next(SurvivorsPerGeneration + 1, GenerationMembers.Count())]);
+                            }
+                            else
+                            {
+                                ProximalMembers += 1;
+                            }
                         }
                     }
                 }
-                //}
-                //else
-                //{
-                //    GenerationMembers[iter] = Breed(GenerationMembers[GlobalRandom.Next(SurvivorsPerGeneration + 1, GenerationMembers.Count())],
-                //                                    GenerationMembers[GlobalRandom.Next(SurvivorsPerGeneration + 1, GenerationMembers.Count())]);
-                //}
+                else
+                {
+                    GenerationMembers[iter] = Breed(GenerationMembers[GlobalRandom.Next(SurvivorsPerGeneration + 1, GenerationMembers.Count())],
+                                                    GenerationMembers[GlobalRandom.Next(SurvivorsPerGeneration + 1, GenerationMembers.Count())]);
+                }
             }
         }
 
