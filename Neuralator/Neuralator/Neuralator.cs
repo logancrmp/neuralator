@@ -334,44 +334,17 @@ namespace Neuralator
 
             // kill bottom n based on murder rate
             // breed winners until number of nets at netspergen
-            for (int iter = 0; iter < 1; iter += 1)
+            for (int iter = 0; iter < SurvivorsPerGeneration; iter += 1)
             {
                 NextGeneration.Add(GenerationMembers[iter]);
             }
 
-            for (int iter = 0; iter < (int)Math.Sqrt(NetsPerGeneration); iter += 1)
+            for (int iter = SurvivorsPerGeneration; iter < NetsPerGeneration; iter += 1)
             {
-                //for (int iter2 = 0; iter2 < (int)Math.Sqrt(NetsPerGeneration); iter2 += 1)
-                //{
-                //    if (NextGeneration.Count() == GenerationMembers.Count())
-                //    {
-                //        break;
-                //    }
-
-                //    if (GenerationMembers[iter].DistanceTo(GenerationMembers[iter2]) < 2)
-                //    {
-                //        NextGeneration.Add(Breed(GenerationMembers[iter], GenerationMembers[iter2]));
-                //    }
-                //    else
-                //    {
-                //        NextGeneration.Add(new NeuralNet(NeuralLayerInfo));
-                //    }
-                //}
-
                 if (iter < SurvivorsPerGeneration * SurvivorsPerGeneration)
                 {
-                    //for (int iter2 = iter + 1; iter2 < SurvivorsPerGeneration * SurvivorsPerGeneration; iter2 += 1)
-                    //{
-                        //if (GenerationMembers[iter].DistanceTo(GenerationMembers[iter2]) < 1)
-                        //{
-                            NextGeneration.Add(Breed(GenerationMembers[Math.Min(iter / SurvivorsPerGeneration, GenerationMembers.Count())],
-                                                     GenerationMembers[Math.Min(iter % SurvivorsPerGeneration, GenerationMembers.Count())]));
-                        //}
-                        //else
-                        //{
-
-                        //}
-                    //}
+                    NextGeneration.Add(Breed(GenerationMembers[Math.Min(iter / SurvivorsPerGeneration, GenerationMembers.Count())],
+                                             GenerationMembers[Math.Min(iter % SurvivorsPerGeneration, GenerationMembers.Count())]));
 
                 }
                 else
@@ -414,53 +387,64 @@ namespace Neuralator
                         else
                         {
                             // Children are always random
-                            if (BreedingType == EnumBreedingType.AlwaysRandom)
+                            switch (BreedingType)
                             {
-                                CurrentDendrite.SetNewRandomConnectionStrength();
-                            }
-                            // Child dendrite connection strength is the average of the mother and father
-                            else
-                            if (BreedingType == EnumBreedingType.AverageValue)
-                            {
-                                CurrentDendrite.ConnectionStrength =
-                                    (Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength +
-                                        Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength) / 2;
-                            }
-                            // Child takes fathers or mothers dendrite connection strength
-                            else
-                            if (BreedingType == EnumBreedingType.Human)
-                            {
-                                CurrentDendrite.ConnectionStrength = (GlobalRandom.NextDouble() < 0.5)
-                                ? Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength
-                                : Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength;
-                            }
-                            // Child dendrite connection strength pulled up and down by agreement between father and mother
-                            else
-                            if (BreedingType == EnumBreedingType.WeightedPull)
-                            {
-                                if (Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength >= 0.5
-                                  && Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength >= 0.5)
-                                {
-                                    CurrentDendrite.ConnectionStrength = (float)Math.Min(1.0, Math.Max(
-                                                                          Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength,
-                                                                          Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength
-                                                                          ) + 0.01);
-                                }
-                                else
-                                if (Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength < 0.5
-                                  && Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength < 0.5)
-                                {
-                                    CurrentDendrite.ConnectionStrength = (float)Math.Max(0, Math.Min(
-                                                                          Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength,
-                                                                          Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength
-                                                                          ) - 0.01);
-                                }
-                                else
-                                {
+                                case EnumBreedingType.AlwaysRandom:
+
+                                    CurrentDendrite.SetNewRandomConnectionStrength();
+
+                                    break;
+
+
+                                // Child dendrite connection strength is the average of the mother and father
+                                case EnumBreedingType.AverageValue:
+
+                                    CurrentDendrite.ConnectionStrength =
+                                        (Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength +
+                                            Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength) / 2;
+
+                                    break;
+
+
+                                // Child takes fathers or mothers dendrite connection strength
+                                default:
+                                case EnumBreedingType.Human:
+
                                     CurrentDendrite.ConnectionStrength = (GlobalRandom.NextDouble() < 0.5)
-                                        ? Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength
-                                        : Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength;
-                                }
+                                    ? Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength
+                                    : Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength;
+
+                                    break;
+
+
+                                // Child dendrite connection strength pulled up and down by agreement between father and mother
+                                case EnumBreedingType.WeightedPull:
+
+                                    if (Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength >= 0.5
+                                      && Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength >= 0.5)
+                                    {
+                                        CurrentDendrite.ConnectionStrength = (float)Math.Min(1.0, Math.Max(
+                                                                              Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength,
+                                                                              Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength
+                                                                              ) + 0.01);
+                                    }
+                                    else
+                                    if (Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength < 0.5
+                                      && Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength < 0.5)
+                                    {
+                                        CurrentDendrite.ConnectionStrength = (float)Math.Max(0, Math.Min(
+                                                                              Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength,
+                                                                              Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength
+                                                                              ) - 0.01);
+                                    }
+                                    else
+                                    {
+                                        CurrentDendrite.ConnectionStrength = (GlobalRandom.NextDouble() < 0.5)
+                                            ? Father.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength
+                                            : Mother.NeuralLayers[LayerIter].NeuronsInLayer[NeuronIter].OutputConnections[DendriteIter].ConnectionStrength;
+                                    }
+
+                                    break;
                             }
                         }
                     }
